@@ -1,0 +1,12 @@
+/* src/config.in.  Generated from configure.in by autoheader.  */
+
+/* build date of package */
+#define BUILD "@BUILD@"
+
+/* Version number of package */
+#define VERSION "@VERSION@"
+
+
+/* Imagemagick Version */
+
+#define MAGICK_VERSION @MAGICK_VERSION@
