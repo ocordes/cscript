@@ -2,7 +2,7 @@
         - ocordes ( at ) astro ( dot ) uni-bonn ( dot ) de
 
 
-    This file is part of animation.
+    This file is part of cscript.
 
     animation is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,28 +15,25 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with animation.  If not, see <http://www.gnu.org/licenses/>.
+    along with cscript.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
 
-/* helpers.h
+/* cache.h
 
-
-   written by: Oliver Cordes 2010-06-29
-   changed by: Oliver Cordes 2017-07-21
-
-   $Id: helpers.h 343 2013-01-02 19:02:00Z ocordes $
+  written by: Oliver Cordes 2017-07-21
+  changed by: Oliver Cordes 2017-07-21
 
 */
 
-#ifndef __helpers_h
+#ifndef __config_cache_h
 
-#define __helpers_h 1
+#define __config_cache_h 1
 
+#include "configfile.h"
 
-/* search file */
-char *expand_environment_variable( char* );
-char *search_file( char*, char* );
+void init_cache( config_table *conftab );
+void done_cache( void );
 
 #endif

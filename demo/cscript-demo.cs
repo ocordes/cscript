@@ -1,4 +1,4 @@
-#!/Users/ocordes/git/cscript/build/cscript -f
+#!/Users/ocordes/git/cscript/build/cscript -d 100 -f
 
 #include <stdio.h>
 

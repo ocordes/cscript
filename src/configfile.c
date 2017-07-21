@@ -1,7 +1,7 @@
 /* config.c
 
    written: Oliver Cordes 2007-05-20
-   updated: Oliver Cordes 2017-04-18
+   updated: Oliver Cordes 2017-07-21
 
 
 */
@@ -11,6 +11,9 @@
 	2017-03-30:
 	 - animation add_rawoption
 	 - add  parameter case-sensitive for the config table
+
+	2017-07-21:
+	  - strip all spaces in options key words and parameters
 
 */
 
@@ -61,6 +64,15 @@ void set_error_add( char *s )
 }
 
 
+char *white_strip( char *s )
+{
+	while ( s[0] == ' ' ) ++s;
+	while ( ( strlen( s ) > 1 ) && s[strlen(s)-1] == ' ' )
+		s[strlen(s)-1] = '\0';
+
+	return s;
+}
+
 void _strupper( char *s )
 {
 	char *p = s;
@@ -87,8 +99,11 @@ _section *get_section( config_table *tab, char *section )
 			_strupper( sec );
 
     for (i=0;i<tab->ncount;i++)
+		{
+			output( 100, "%s %s\n", tab->sections[i].section, sec );
 			if ( strcmp( tab->sections[i].section, sec ) == 0 )
 	  		s = &tab->sections[i];
+		}
 
 		free( sec );
   }
@@ -110,8 +125,11 @@ _option *get_option( config_table *tab, _section *s, char *option )
 			_strupper( opt );
 
     for (i=0;i<s->ncount;i++)
+		{
+			output( 100, ">%s< >%s<\n", s->options[i].option, opt );
 			if ( strcmp( s->options[i].option, opt ) == 0 )
 	  		o = &s->options[i];
+		}
 
 		free( opt );
   }
@@ -496,6 +514,7 @@ config_table *config_read( char *filename, int case_sensitive )
 				{
 		    	p = buf;
 
+					/* output( 100, "%s", p ); */
 		    	/* manikuere */
 
 		    	while ( ( p[0] == ' ' ) || ( p[0] == '\t' ) ) p++;
@@ -521,9 +540,7 @@ config_table *config_read( char *filename, int case_sensitive )
 						c = NULL;
 
 
-		    	while ( ( strlen(p) > 1 ) && ( p[strlen(p)-1] == ' ' ) )
-						p[strlen(p)-1] = '\0';
-
+					p = white_strip( p );
 
 		    	switch( p[0] )
 		    	{
@@ -546,6 +563,11 @@ config_table *config_read( char *filename, int case_sensitive )
 								/* new option*/
 								q = strtok( p, "=\0" );
 								r = strtok( NULL, "\0" );
+
+								/* shape the stings */
+								q = white_strip( q );
+								r = white_strip( r );
+
 								add_rawoption( tab, last_section, q, r, c );
 			    		}
 			    		else
