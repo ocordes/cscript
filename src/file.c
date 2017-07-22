@@ -20,20 +20,11 @@
 */
 
 
-/* cache.h
+/* file.c
 
-  written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-07-21
+  written by: Oliver Cordes 2017-07-22
+  changed by: Oliver Cordes 2017-07-22
 
 */
 
-#ifndef __cache_h
-
-#define __cache_h 1
-
-#include "configfile.h"
-
-void init_cache( config_table *conftab );
-void done_cache( void );
-
-#endif
+#include "file.h"

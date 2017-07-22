@@ -23,7 +23,7 @@
 /* cscript.c
 
   written by: Oliver Cordes 2017-07-20
-  changed by: Oliver Cordes 2017-07-21
+  changed by: Oliver Cordes 2017-07-22
 
 */
 
@@ -37,6 +37,7 @@
 
 #include "cache.h"
 #include "configfile.h"
+#include "file.h"
 #include "helpers.h"
 #include "output.h"
 
