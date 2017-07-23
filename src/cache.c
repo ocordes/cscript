@@ -23,7 +23,7 @@
 /* cache.c
 
   written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-07-21
+  changed by: Oliver Cordes 2017-07-23
 
 */
 
@@ -35,6 +35,7 @@
 #include <errno.h>
 
 #include "configfile.h"
+#include "file.h"
 #include "helpers.h"
 #include "output.h"
 
@@ -68,4 +69,42 @@ void done_cache( void )
 {
   if ( cache_dir != NULL )
     free( cache_dir );
+}
+
+
+void check_cache( _file_info *fi )
+{
+  FILE *file;
+
+  /* create all filenames for caching */
+  if ( asprintf( &fi->cache_stat, "%s/%s.dat", cache_dir, fi->file_hash ) == -1 )
+  {
+    fprintf( stderr, "Memory allocation error! Program aborted!\n");
+    exit( -1 );
+  }
+  if ( asprintf( &fi->cache_exe, "%s/%s.exe", cache_dir, fi->file_hash ) == -1 )
+  {
+    fprintf( stderr, "Memory allocation error! Program aborted!\n");
+    exit( -1 );
+  }
+
+  /* read cache stats */
+
+  file = fopen( fi->cache_exe, "r" );
+  if ( file == NULL )
+  {
+    output( 10, "No compiled executable in the cache!\n" );
+    fi->state = state_not_exist;
+    return;
+  }
+  fclose( file );
+
+  file = fopen( fi->cache_stat, "r" );
+  if ( file == NULL )
+  {
+    output( 10, "No stat file in the cache!\n" );
+    fi->state = state_not_exist;
+    return;
+  }
+  fclose( file );
 }

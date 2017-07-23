@@ -82,6 +82,7 @@ void generate_file_hash( _file_info *fi )
   MD5Final( digest, &md5 );
 
   fi->file_hash = (char*) malloc( 33 );
+  fi->file_hash[32] = '\0';
 
   pos = 0;
   for (i=0;i<16;++i)
@@ -104,7 +105,11 @@ _file_info *get_file_info( char *executable )
     fprintf( stderr, "Allocation of memory failed! Program aborted!\n" );
     exit( -1 );
   }
-  fi->name = strdup( executable );
+  fi->name       = strdup( executable );
+  fi->state      = state_unknown;
+  fi->file_hash  = NULL;
+  fi->cache_stat = NULL;
+  fi->cache_exe  = NULL;
 
   if ( stat( executable, &fi->file_stat ) == -1 )
   {
@@ -124,6 +129,8 @@ void free_file_info( _file_info *fi )
   {
       free( fi->name );
       free( fi->file_hash );
+      free( fi->cache_stat );
+      free( fi->cache_exe );
       free( fi );
   }
 }

@@ -33,10 +33,18 @@
 
 #include <sys/stat.h>
 
+#define state_unknown   -1
+#define state_ok        0
+#define state_not_exist 1
+#define state_outdated  2
+
 typedef struct {
   char       *name;
   struct stat file_stat;
   char       *file_hash;
+  int         state;
+  char       *cache_stat;
+  char       *cache_exe;
 } _file_info;
 
 

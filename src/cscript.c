@@ -122,6 +122,8 @@ int main( int argc, char* argv[] )
 
   file_info = get_file_info( executable );
 
+  check_cache( file_info );
+
 
   /* finished executing */
   free_file_info( file_info );
