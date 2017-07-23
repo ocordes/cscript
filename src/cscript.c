@@ -42,8 +42,9 @@
 #include "output.h"
 
 
-char *executable      = NULL;
-config_table *conftab = NULL;
+char         *executable = NULL;
+config_table *conftab    = NULL;
+_file_info   *file_info  = NULL;
 
 static struct option longopts[] = {
   { "debug",          required_argument, NULL, 'd' },
@@ -119,7 +120,11 @@ int main( int argc, char* argv[] )
 
   output( 1, "executable=%s\n", executable );
 
+  file_info = get_file_info( executable );
+
+
   /* finished executing */
+  free_file_info( file_info );
   done_cache();
 
   if ( conftab != NULL )

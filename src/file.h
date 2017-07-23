@@ -23,7 +23,7 @@
 /* file.h
 
   written by: Oliver Cordes 2017-07-22
-  changed by: Oliver Cordes 2017-07-22
+  changed by: Oliver Cordes 2017-07-23
 
 */
 
@@ -31,5 +31,17 @@
 
 #define __file_h 1
 
+#include <sys/stat.h>
+
+typedef struct {
+  char       *name;
+  struct stat file_stat;
+  char       *file_hash;
+} _file_info;
+
+
+_file_info *get_file_info( char * );
+
+void free_file_info( _file_info * );
 
 #endif

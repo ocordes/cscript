@@ -23,8 +23,107 @@
 /* file.c
 
   written by: Oliver Cordes 2017-07-22
-  changed by: Oliver Cordes 2017-07-22
+  changed by: Oliver Cordes 2017-07-23
 
 */
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <sys/stat.h>
+
+#include <string.h>
+#include <errno.h>
+
+#if defined(__APPLE__)
+#  define COMMON_DIGEST_FOR_OPENSSL
+#  include <CommonCrypto/CommonDigest.h>
+#  define SHA1 CC_SHA1
+#  define MD5Context MD5_CTX
+#  define MD5Init MD5_Init
+#  define MD5Final MD5_Final
+#  define MD5Update MD5_Update
+#else
+#  include <openssl/md5.h>
+#endif
 
 #include "file.h"
+#include "output.h"
+
+
+char hex2char( int i )
+{
+  if ( i < 10 )
+  {
+    return '0'+i;
+  }
+  else
+  {
+    return 'a'+(i-10);
+  }
+}
+
+void str2hexstr( unsigned char c, char *s, int *pos )
+{
+  s[(*pos)+1]  = hex2char( c & 0xf );
+  s[(*pos)]    = hex2char( c>>4 );
+  (*pos) += 2;
+}
+
+
+void generate_file_hash( _file_info *fi )
+{
+  MD5Context    md5;
+  unsigned char digest[16];
+
+  int           i, pos;
+
+  MD5Init( &md5 );
+  MD5Update( &md5, fi->name, strlen( fi->name ) );
+  MD5Final( digest, &md5 );
+
+  fi->file_hash = (char*) malloc( 33 );
+
+  pos = 0;
+  for (i=0;i<16;++i)
+  {
+    str2hexstr( digest[i], fi->file_hash, &pos );
+  }
+
+  output( 10, "hash: %s\n", fi->file_hash );
+}
+
+
+_file_info *get_file_info( char *executable )
+{
+  _file_info *fi;
+
+  fi = (_file_info*) malloc( sizeof( _file_info ) );
+
+  if ( fi == NULL )
+  {
+    fprintf( stderr, "Allocation of memory failed! Program aborted!\n" );
+    exit( -1 );
+  }
+  fi->name = strdup( executable );
+
+  if ( stat( executable, &fi->file_stat ) == -1 )
+  {
+    fprintf( stderr, "Error getting stats for executable (%s)! Program aborted!\n",
+          strerror( errno ) );
+    exit( -1 );
+  }
+  generate_file_hash( fi );
+
+  return fi;
+}
+
+
+void free_file_info( _file_info *fi )
+{
+  if ( fi != NULL )
+  {
+      free( fi->name );
+      free( fi->file_hash );
+      free( fi );
+  }
+}
