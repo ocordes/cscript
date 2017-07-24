@@ -23,7 +23,7 @@
 /* cscript.c
 
   written by: Oliver Cordes 2017-07-20
-  changed by: Oliver Cordes 2017-07-22
+  changed by: Oliver Cordes 2017-07-24
 
 */
 
@@ -36,6 +36,7 @@
 #include <errno.h>
 
 #include "cache.h"
+#include "compile.h"
 #include "configfile.h"
 #include "file.h"
 #include "helpers.h"
@@ -56,14 +57,16 @@ static struct option longopts[] = {
 
 /* option parser */
 
-void parse_options( int argc, char *argv[] )
+void parse_options( int *argc, char **argv[] )
 {
   int   ch;
   int   dl;
   char *dummy;
 
-  while ( ( ch = getopt_long( argc, argv,
-                             options,  longopts, NULL  ) ) != -1 )
+  int   is_loop = 1;
+
+  while ( ( is_loop == 1 ) && ( ( ch = getopt_long( (*argc), (*argv),
+                                    options,  longopts, NULL  ) ) != -1 ) )
   {
     switch( ch )
     {
@@ -83,10 +86,11 @@ void parse_options( int argc, char *argv[] )
         break;
       case 'f':
         executable = strdup( optarg );
+        is_loop = 0;
         break;
-      default:
+      /*default:
         printf( "Unknown parameter -%c detected! Abort program!\n", ch );
-        exit( -1 );
+        exit( -1 ); */
     }
 
   }
@@ -98,8 +102,8 @@ void parse_options( int argc, char *argv[] )
     free( dummy );
   }
 
-  argc -= optind;
-  argv += optind;
+  (*argc) -= optind;
+  (*argv) += optind;
 }
 
 
@@ -107,7 +111,7 @@ int main( int argc, char* argv[] )
 {
   int i;
 
-  parse_options( argc, argv );
+  parse_options( &argc, &argv );
 
   init_cache( conftab );
 
@@ -124,6 +128,13 @@ int main( int argc, char* argv[] )
 
   check_cache( file_info );
 
+  switch( file_info->state )
+  {
+    case state_not_exist:
+    case state_outdated:
+      compile_file( file_info );
+      break;
+  }
 
   /* finished executing */
   free_file_info( file_info );
