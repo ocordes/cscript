@@ -23,7 +23,7 @@
 /* compile.c
 
   written by: Oliver Cordes 2017-07-24
-  changed by: Oliver Cordes 2017-07-25
+  changed by: Oliver Cordes 2017-07-27
 
 */
 
@@ -34,12 +34,29 @@
 #include <errno.h>
 
 #include "abort.h"
+#include "cache.h"
 #include "configfile.h"
 #include "compile.h"
 #include "file.h"
 #include "output.h"
 
 #define bufferlen 60000
+
+
+char *c_compiler   = NULL;
+char *cpp_compiler = NULL;
+
+
+void header_keys( char *key, char* val, int lineno )
+{
+  if ( ( key == NULL ) || ( val == NULL ) )
+  {
+    output( 10, "header key wrong in line %i: key=%s val=%s\n", lineno, key, val );
+    return;
+  }
+
+  output( 10, "extra parameter: key=%s val=%s\n", key, val );
+}
 
 char *strip_file( _file_info *file_info )
 {
@@ -54,6 +71,7 @@ char *strip_file( _file_info *file_info )
   char *p;
   char *q, *r;
   int   header;
+  int   lineno = 0;
 
   if ( asprintf( &templatename, "%s/tmp-XXXXXX.c", "/tmp" ) == -1 )
   {
@@ -88,6 +106,7 @@ char *strip_file( _file_info *file_info )
   {
     if ( fgets( buf, bufferlen, in_file ) != NULL )
     {
+      ++lineno;
       buf2 = strdup( buf );
       buf2[strlen( buf2 )-1] = '\0';
       p = buf2;
@@ -118,7 +137,7 @@ char *strip_file( _file_info *file_info )
         if ( header == 1 )
         {
           r = strtok( NULL, "\0" );
-          output( 10, "extra parameter: key=%s val=%s\n", q, r );
+          header_keys( q, r, lineno );
         }
       }
 
@@ -137,6 +156,45 @@ char *strip_file( _file_info *file_info )
 }
 
 
+void init_compile( config_table *tab )
+{
+  c_compiler = config_get_default( tab, "main", "c_compiler", "gcc" );
+  cpp_compiler = config_get_default( tab, "main", "cpp_compiler", "g++" );
+}
+
+void done_compile( void )
+{
+  if ( c_compiler != NULL ) free( c_compiler );
+  if ( cpp_compiler != NULL ) free( cpp_compiler );
+}
+
+
+int do_compile( char *infile, char *outfile )
+{
+  char *compile_cmd;
+  int   err;
+
+  output( 10, "compiling: %s -> %s\n", infile, outfile );
+
+  if ( asprintf( &compile_cmd, "%s -O3 -o %s %s", c_compiler, outfile, infile ) == -1 )
+  {
+    err_abort( -1, "Can't allocate memory for string!" );
+  }
+  output( 10, "cmd: %s\n", compile_cmd );
+
+  err = system( compile_cmd );
+
+  if ( err != 0 )
+  {
+    output( 0, "Error during compilation! (err=%i)\n", err );
+  }
+
+  free( compile_cmd );
+
+  return err;
+}
+
+
 void compile_file( _file_info *file_info )
 {
   char *tempname;
@@ -145,5 +203,10 @@ void compile_file( _file_info *file_info )
 
   tempname = strip_file( file_info );
   output( 10, "tempname = %s\n", tempname );
+
+  do_compile( tempname, file_info->cache_exe );
+
+  free( tempname );
+
   output( 10, "Done.\n" );
 }

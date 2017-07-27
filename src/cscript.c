@@ -114,6 +114,7 @@ int main( int argc, char* argv[] )
   parse_options( &argc, &argv );
 
   init_cache( conftab );
+  init_compile( conftab );
 
   printf( "Hello c-script!\n" );
 
@@ -138,6 +139,7 @@ int main( int argc, char* argv[] )
 
   /* finished executing */
   free_file_info( file_info );
+  done_compile();
   done_cache();
 
   if ( conftab != NULL )
