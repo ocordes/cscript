@@ -42,6 +42,34 @@
 
 char *cache_dir = NULL;
 
+
+char * create_arg_list( int argc, char *argv[] )
+{
+  int    i;
+  int   len;
+  char *s;
+
+  len = 0;
+  for (i=0;i<argc;++i)
+  {
+    len += strlen( argv[i] ) + 1;  /* add a space or the last \0 */
+  }
+
+  s = (char*) malloc( len );
+  s[0] = '\0';
+
+  for (i=0;i<argc;++i)
+  {
+    if ( i > 0 )
+    {
+      strcat( s, " " );
+    }
+    strcat( s, argv[i] );
+  }
+
+  return s;
+}
+
 void init_cache( config_table *conftab )
 {
   char *s;
@@ -107,4 +135,26 @@ void check_cache( _file_info *fi )
     return;
   }
   fclose( file );
+}
+
+
+int cache_execute( _file_info *fi, int argc, char *argv[] )
+{
+  char *arglist;
+  char *cmd;
+
+  int  ret_val;
+
+  arglist = create_arg_list( argc, argv );
+
+  asprintf( &cmd, "%s %s", fi->cache_exe, arglist );
+
+  output( 10, "execute: %s\n", cmd );
+  ret_val = system( cmd ) >> 8;
+
+  output( 10, "return value = %i\n", ret_val );
+
+  free( cmd );
+  free( arglist );
+  return ret_val;
 }

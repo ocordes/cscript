@@ -111,6 +111,8 @@ int main( int argc, char* argv[] )
 {
   int i;
 
+  int ret_val;
+
   parse_options( &argc, &argv );
 
   init_cache( conftab );
@@ -137,6 +139,8 @@ int main( int argc, char* argv[] )
       break;
   }
 
+  ret_val = cache_execute( file_info, argc, argv );
+
   /* finished executing */
   free_file_info( file_info );
   done_compile();
@@ -146,5 +150,6 @@ int main( int argc, char* argv[] )
   {
     config_done( conftab );
   }
+  exit( ret_val ); 
   return 0;
 }
