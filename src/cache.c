@@ -23,7 +23,7 @@
 /* cache.c
 
   written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-07-27
+  changed by: Oliver Cordes 2017-07-30
 
 */
 
@@ -33,6 +33,8 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
+
+#include <time.h>
 
 #include "configfile.h"
 #include "file.h"
@@ -134,7 +136,35 @@ void check_cache( _file_info *fi )
     fi->state = state_not_exist;
     return;
   }
+  fread( &fi->compile_time, sizeof( time_t ), 1, file );
+  fread( &fi->access_time, sizeof( time_t ), 1, file );
+
   fclose( file );
+
+  output( 10, "times: exe=%i a.out=%i\n", fi->file_stat.st_mtimespec.tv_sec, fi->compile_time );
+
+  if ( fi->file_stat.st_mtimespec.tv_sec > fi->compile_time )
+  {
+    fi->state = state_outdated;
+  }
+}
+
+
+void cache_update( _file_info *fi )
+{
+  FILE *file;
+
+  file = fopen( fi->cache_stat, "w" );
+  if ( file == NULL )
+  {
+    output( 1, "Can't write stat information!\n" );
+  }
+  else
+  {
+    fwrite( &fi->compile_time, sizeof( time_t ), 1, file );
+    fwrite( &fi->access_time, sizeof( time_t ), 1, file );
+    fclose( file );
+  }
 }
 
 
@@ -144,6 +174,9 @@ int cache_execute( _file_info *fi, int argc, char *argv[] )
   char *cmd;
 
   int  ret_val;
+
+  fi->access_time = time( NULL );
+  cache_update( fi );
 
   arglist = create_arg_list( argc, argv );
 

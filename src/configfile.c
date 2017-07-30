@@ -98,9 +98,9 @@ _section *get_section( config_table *tab, char *section )
 		if ( tab->case_sensitive == 0 )
 			_strupper( sec );
 
-    for (i=0;i<tab->ncount;i++)
+    for (i=0;i<tab->ncount;++i)
 		{
-			output( 100, "%s %s\n", tab->sections[i].section, sec );
+			/* output( 100, "%s %s\n", tab->sections[i].section, sec ); */
 			if ( strcmp( tab->sections[i].section, sec ) == 0 )
 	  		s = &tab->sections[i];
 		}
@@ -124,9 +124,9 @@ _option *get_option( config_table *tab, _section *s, char *option )
 		if ( tab->case_sensitive == 0 )
 			_strupper( opt );
 
-    for (i=0;i<s->ncount;i++)
+    for (i=0;i<s->ncount;++i)
 		{
-			output( 100, ">%s< >%s<\n", s->options[i].option, opt );
+			/* output( 100, ">%s< >%s<\n", s->options[i].option, opt ); */
 			if ( strcmp( s->options[i].option, opt ) == 0 )
 	  		o = &s->options[i];
 		}
@@ -678,7 +678,7 @@ char *config_get_default( config_table *config ,
   s = config_get( config, section, option, &err );
   if ( err != config_error_ok )
     {
-      output( 1, "cfgerr: %s! Using default '%s'\n",
+      output( 100, "cfgerr: %s! Using default '%s'\n",
 		     config_error( err ), def );
       s = strdup( def );
     }
@@ -699,7 +699,7 @@ int config_getint_default( config_table *config ,
   i = config_getint( config, section, option, &err );
   if ( err != config_error_ok )
     {
-      output( 1,  "cfgerr: %s! Using default '%d'\n",
+      output( 100,  "cfgerr: %s! Using default '%d'\n",
 		     config_error( err ), def );
       i = def;
     }
@@ -720,7 +720,7 @@ double config_getfloat_default( config_table *config,
   d = config_getfloat( config, section, option, &err );
   if ( err != config_error_ok )
     {
-      output( 1,  "cfgerr: %s! Using default '%g'\n",
+      output( 100,  "cfgerr: %s! Using default '%g'\n",
 		     config_error( err ), def );
       d = def;
     }
@@ -740,7 +740,7 @@ int config_getboolean_default( config_table *config,
   i = config_getboolean( config, section, option, &err );
   if ( err != config_error_ok )
     {
-      output( 1, "cfgerr: %s! Using default '%s'\n",
+      output( 100, "cfgerr: %s! Using default '%s'\n",
 		     config_error( err ), ((def==1)?"TRUE":"FALSE") );
       i = def;
     }

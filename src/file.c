@@ -23,7 +23,7 @@
 /* file.c
 
   written by: Oliver Cordes 2017-07-22
-  changed by: Oliver Cordes 2017-07-23
+  changed by: Oliver Cordes 2017-07-30
 
 */
 #include <stdlib.h>
@@ -105,11 +105,13 @@ _file_info *get_file_info( char *executable )
     fprintf( stderr, "Allocation of memory failed! Program aborted!\n" );
     exit( -1 );
   }
-  fi->name       = strdup( executable );
-  fi->state      = state_unknown;
-  fi->file_hash  = NULL;
-  fi->cache_stat = NULL;
-  fi->cache_exe  = NULL;
+  fi->name         = strdup( executable );
+  fi->state        = state_unknown;
+  fi->file_hash    = NULL;
+  fi->cache_stat   = NULL;
+  fi->cache_exe    = NULL;
+  fi->compile_time = 0;
+  fi->access_time  = 0;
 
   if ( stat( executable, &fi->file_stat ) == -1 )
   {

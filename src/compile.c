@@ -23,7 +23,7 @@
 /* compile.c
 
   written by: Oliver Cordes 2017-07-24
-  changed by: Oliver Cordes 2017-07-27
+  changed by: Oliver Cordes 2017-07-30
 
 */
 
@@ -32,6 +32,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+
+#include <time.h>
 
 #include "abort.h"
 #include "cache.h"
@@ -199,12 +201,20 @@ void compile_file( _file_info *file_info )
 {
   char *tempname;
 
+  int   ret_val;
+
   output( 10, "Compiling the executable ...\n" );
 
   tempname = strip_file( file_info );
   output( 10, "tempname = %s\n", tempname );
 
-  do_compile( tempname, file_info->cache_exe );
+  ret_val = do_compile( tempname, file_info->cache_exe );
+
+  if ( ret_val == 0 )
+  {
+    /* remeber the compile time */
+    file_info->compile_time = time( NULL );
+  }
 
   free( tempname );
 

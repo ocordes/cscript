@@ -109,23 +109,12 @@ void parse_options( int *argc, char **argv[] )
 
 int main( int argc, char* argv[] )
 {
-  int i;
-
   int ret_val;
 
   parse_options( &argc, &argv );
 
   init_cache( conftab );
   init_compile( conftab );
-
-  printf( "Hello c-script!\n" );
-
-  for (i=0;i<argc;++i)
-  {
-    printf( "%i: %s\n", i, argv[i] );
-  }
-
-  output( 1, "executable=%s\n", executable );
 
   file_info = get_file_info( executable );
 
@@ -150,6 +139,6 @@ int main( int argc, char* argv[] )
   {
     config_done( conftab );
   }
-  exit( ret_val ); 
+  exit( ret_val );
   return 0;
 }

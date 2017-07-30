@@ -23,7 +23,7 @@
 /* file.h
 
   written by: Oliver Cordes 2017-07-22
-  changed by: Oliver Cordes 2017-07-23
+  changed by: Oliver Cordes 2017-07-30
 
 */
 
@@ -32,6 +32,7 @@
 #define __file_h 1
 
 #include <sys/stat.h>
+#include <time.h>
 
 #define state_unknown   -1
 #define state_ok        0
@@ -45,6 +46,8 @@ typedef struct {
   int         state;
   char       *cache_stat;
   char       *cache_exe;
+  time_t      compile_time;
+  time_t      access_time;
 } _file_info;
 
 
