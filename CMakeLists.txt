@@ -2,14 +2,18 @@ cmake_minimum_required (VERSION 2.6)
 project( cscript C )
 
 # written by: Oliver Cordes 2017-07-20
-# changed by: Oliver Cordes 2017-07-20
+# changed by: Oliver Cordes 2017-07-31
 
-set(VERSION 0.0.1)
+set(VERSION 0.1.0)
 
 # get current date
 execute_process(COMMAND "date" "+%Y-%m-%d" OUTPUT_VARIABLE BUILD)
 string( REPLACE "\n" "" BUILD ${BUILD})
 message(STATUS "Compilation date = ${BUILD}")
+
+if(UNIX AND NOT APPLE)
+   set(LINUX TRUE)
+endif()
 
 
 # add local cmake modules
@@ -41,6 +45,19 @@ target_include_directories( cscript PUBLIC src )
 
 
 # add libraries
+
+if(LINUX)
+   #message(STATUS ">>> Linux")
+   find_package(OpenSSL REQUIRED)
+   if( OpenSSL_FOUND )
+      include_directories(${OPENSSL_INCLUDE_DIRS})
+       link_directories(${OPENSSL_LIBRARIES})
+       message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
+   else()
+       # Error; with REQUIRED, pkg_search_module() will throw an error by it's own
+   endif(OpenSSL_FOUND)
+   target_link_libraries( cscript ${OPENSSL_LIBRARIES})
+endif()
 
 # add the math lib
 target_link_libraries( cscript m )

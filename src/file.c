@@ -38,10 +38,6 @@
 #  define COMMON_DIGEST_FOR_OPENSSL
 #  include <CommonCrypto/CommonDigest.h>
 #  define SHA1 CC_SHA1
-#  define MD5Context MD5_CTX
-#  define MD5Init MD5_Init
-#  define MD5Final MD5_Final
-#  define MD5Update MD5_Update
 #else
 #  include <openssl/md5.h>
 #endif
@@ -72,14 +68,14 @@ void str2hexstr( unsigned char c, char *s, int *pos )
 
 void generate_file_hash( _file_info *fi )
 {
-  MD5Context    md5;
+  MD5_CTX       md5;
   unsigned char digest[16];
 
   int           i, pos;
 
-  MD5Init( &md5 );
-  MD5Update( &md5, fi->name, strlen( fi->name ) );
-  MD5Final( digest, &md5 );
+  MD5_Init( &md5 );
+  MD5_Update( &md5, fi->name, strlen( fi->name ) );
+  MD5_Final( digest, &md5 );
 
   fi->file_hash = (char*) malloc( 33 );
   fi->file_hash[32] = '\0';

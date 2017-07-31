@@ -25,12 +25,13 @@
 
 
    written by: Oliver Cordes 2010-06-29
-   changed by: Oliver Cordes 2010-08-01
+   changed by: Oliver Cordes 2017-07-31
 
    $Id: helpers.c 343 2013-01-02 19:02:00Z ocordes $
 
 */
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,7 +50,8 @@ char *expand_environment_variable( char *s)
   char *pre;
   char *post;
   char *var;
-  char a = '\0';
+  char  a = '\0';
+  int   ret;
 
   if ( ( p = strchr( s, '$') ) == NULL )
     return strdup( s );
@@ -69,9 +71,14 @@ char *expand_environment_variable( char *s)
   var = getenv( p );
   post = strtok_r( NULL, "\0", &r );
   if ( post == NULL )
-    asprintf( &p, "%s%s", pre, var );
+    ret = asprintf( &p, "%s%s", pre, var );
   else
-    asprintf( &p, "%s%s/%s", pre, var, post );
+    ret = asprintf( &p, "%s%s/%s", pre, var, post );
+
+  if ( ret == -1 )
+  {
+    p = strdup( "error foo" );
+  }
 
   return p;
 }
@@ -98,7 +105,7 @@ char *search_file( char *name, char *pathes )
     }
 
     rp = expand_environment_variable( s );
-    asprintf( &sname, "%s/%s" , rp, name );
+    err = asprintf( &sname, "%s/%s" , rp, name );
     free( rp );
 
     err = access( sname, R_OK );

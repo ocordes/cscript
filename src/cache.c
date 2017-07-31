@@ -23,10 +23,11 @@
 /* cache.c
 
   written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-07-30
+  changed by: Oliver Cordes 2017-07-31
 
 */
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,10 +37,15 @@
 
 #include <time.h>
 
+#include "abort.h"
 #include "configfile.h"
 #include "file.h"
 #include "helpers.h"
 #include "output.h"
+
+#if defined(__APPLE__)
+#define  st_mtim st_mtimespec
+#endif
 
 
 char *cache_dir = NULL;
@@ -104,7 +110,8 @@ void done_cache( void )
 
 void check_cache( _file_info *fi )
 {
-  FILE *file;
+  FILE   *file;
+  size_t  rs;
 
   /* create all filenames for caching */
   if ( asprintf( &fi->cache_stat, "%s/%s.dat", cache_dir, fi->file_hash ) == -1 )
@@ -136,14 +143,26 @@ void check_cache( _file_info *fi )
     fi->state = state_not_exist;
     return;
   }
-  fread( &fi->compile_time, sizeof( time_t ), 1, file );
-  fread( &fi->access_time, sizeof( time_t ), 1, file );
+  
+  /* read the saved times from stat file */
+  rs = fread( &fi->compile_time, sizeof( time_t ), 1, file );
+  if ( rs != 1 )
+  {
+    output( 10, "Can't read the compile time from stat file!\n" );
+    fi->compile_time = 0;
+  }
+  rs = fread( &fi->access_time, sizeof( time_t ), 1, file );
+  if ( rs != 1 )
+  {
+    output( 10, "Can't read the access time from stat file!\n" );
+    fi->access_time = 0;
+  }
 
   fclose( file );
 
-  output( 10, "times: exe=%i a.out=%i\n", fi->file_stat.st_mtimespec.tv_sec, fi->compile_time );
+  output( 10, "times: exe=%i a.out=%i\n", fi->file_stat.st_mtim.tv_sec, fi->compile_time );
 
-  if ( fi->file_stat.st_mtimespec.tv_sec > fi->compile_time )
+  if ( fi->file_stat.st_mtim.tv_sec > fi->compile_time )
   {
     fi->state = state_outdated;
   }
@@ -180,7 +199,10 @@ int cache_execute( _file_info *fi, int argc, char *argv[] )
 
   arglist = create_arg_list( argc, argv );
 
-  asprintf( &cmd, "%s %s", fi->cache_exe, arglist );
+  if ( asprintf( &cmd, "%s %s", fi->cache_exe, arglist ) == -1 )
+  {
+    err_abort( -1, "Can't allocate memory for command string!" );
+  }
 
   output( 10, "execute: %s\n", cmd );
   ret_val = system( cmd ) >> 8;
