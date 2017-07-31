@@ -109,29 +109,33 @@ void parse_options( int *argc, char **argv[] )
 
 int main( int argc, char* argv[] )
 {
-  int ret_val;
+  int ret_val = 0;
 
   parse_options( &argc, &argv );
 
   init_cache( conftab );
   init_compile( conftab );
 
-  file_info = get_file_info( executable );
-
-  check_cache( file_info );
-
-  switch( file_info->state )
+  if ( executable != NULL )
   {
-    case state_not_exist:
-    case state_outdated:
-      compile_file( file_info );
-      break;
+    file_info = get_file_info( executable );
+
+    check_cache( file_info );
+
+    switch( file_info->state )
+    {
+      case state_not_exist:
+      case state_outdated:
+        compile_file( file_info );
+        break;
+    }
+
+    ret_val = cache_execute( file_info, argc, argv );
+
+    /* finished executing */
+    free_file_info( file_info );
   }
 
-  ret_val = cache_execute( file_info, argc, argv );
-
-  /* finished executing */
-  free_file_info( file_info );
   done_compile();
   done_cache();
 
