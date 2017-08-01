@@ -23,7 +23,7 @@
 /* cache.c
 
   written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-07-31
+  changed by: Oliver Cordes 2017-08-01
 
 */
 
@@ -78,6 +78,29 @@ char * create_arg_list( int argc, char *argv[] )
   return s;
 }
 
+
+time_t buf2time( char *s )
+{
+  if ( s == NULL )
+  {
+    return 0;
+  }
+
+  if ( s[0] == '\0' )
+  {
+    return 0;
+  }
+
+  if ( s[strlen(s)-1] == '\n' )
+  {
+    s[strlen(s)-1] = '\0';
+  }
+
+  return (time_t) strtol( s, (char **)NULL, 10 );
+}
+
+
+
 void init_cache( config_table *conftab )
 {
   char *s;
@@ -110,8 +133,10 @@ void done_cache( void )
 
 void check_cache( _file_info *fi )
 {
+  #define buflen 80
+  char    buf[buflen+1];
   FILE   *file;
-  size_t  rs;
+
 
   /* create all filenames for caching */
   if ( asprintf( &fi->cache_stat, "%s/%s.dat", cache_dir, fi->file_hash ) == -1 )
@@ -143,19 +168,25 @@ void check_cache( _file_info *fi )
     fi->state = state_not_exist;
     return;
   }
-  
+
   /* read the saved times from stat file */
-  rs = fread( &fi->compile_time, sizeof( time_t ), 1, file );
-  if ( rs != 1 )
+  if ( fgets( buf, buflen, file ) == NULL )
   {
     output( 10, "Can't read the compile time from stat file!\n" );
     fi->compile_time = 0;
   }
-  rs = fread( &fi->access_time, sizeof( time_t ), 1, file );
-  if ( rs != 1 )
+  else
+  {
+    fi->compile_time = buf2time( buf );
+  }
+  if ( fgets( buf, buflen, file ) == NULL )
   {
     output( 10, "Can't read the access time from stat file!\n" );
     fi->access_time = 0;
+  }
+  else
+  {
+    fi->access_time = buf2time( buf );
   }
 
   fclose( file );
@@ -180,8 +211,9 @@ void cache_update( _file_info *fi )
   }
   else
   {
-    fwrite( &fi->compile_time, sizeof( time_t ), 1, file );
-    fwrite( &fi->access_time, sizeof( time_t ), 1, file );
+    fprintf( file, "%ld\n", fi->compile_time );
+    fprintf( file, "%ld\n", fi->access_time );
+    fprintf( file, "%s\n", fi->name );
     fclose( file );
   }
 }

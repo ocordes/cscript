@@ -23,7 +23,7 @@
 /* file.c
 
   written by: Oliver Cordes 2017-07-22
-  changed by: Oliver Cordes 2017-07-30
+  changed by: Oliver Cordes 2017-08-01
 
 */
 #include <stdlib.h>
@@ -90,6 +90,22 @@ void generate_file_hash( _file_info *fi )
 }
 
 
+char *get_real_name( char *executable )
+{
+  char *s;
+
+  s = realpath( executable, NULL );
+  if ( s == NULL )
+  {
+    return strdup( executable );
+  }
+  else
+  {
+    return s;
+  }
+}
+
+
 _file_info *get_file_info( char *executable )
 {
   _file_info *fi;
@@ -101,7 +117,7 @@ _file_info *get_file_info( char *executable )
     fprintf( stderr, "Allocation of memory failed! Program aborted!\n" );
     exit( -1 );
   }
-  fi->name         = strdup( executable );
+  fi->name         = get_real_name( executable );
   fi->state        = state_unknown;
   fi->file_hash    = NULL;
   fi->cache_stat   = NULL;

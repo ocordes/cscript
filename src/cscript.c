@@ -23,7 +23,7 @@
 /* cscript.c
 
   written by: Oliver Cordes 2017-07-20
-  changed by: Oliver Cordes 2017-07-24
+  changed by: Oliver Cordes 2017-08-01
 
 */
 
@@ -122,15 +122,20 @@ int main( int argc, char* argv[] )
 
     check_cache( file_info );
 
+    ret_val = 0;   /* everything is okay */
     switch( file_info->state )
     {
       case state_not_exist:
       case state_outdated:
-        compile_file( file_info );
+        ret_val = compile_file( file_info );
         break;
     }
 
-    ret_val = cache_execute( file_info, argc, argv );
+    if ( ret_val == 0 )
+    {
+      /* run only, if everything is okay! */
+      ret_val = cache_execute( file_info, argc, argv );
+    }
 
     /* finished executing */
     free_file_info( file_info );

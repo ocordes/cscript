@@ -23,7 +23,7 @@
 /* compile.h
 
   written by: Oliver Cordes 2017-07-24
-  changed by: Oliver Cordes 2017-07-27
+  changed by: Oliver Cordes 2017-08-01
 
 */
 
@@ -38,6 +38,6 @@
 void init_compile( config_table* );
 void done_compile( void );
 
-void compile_file( _file_info* );
+int  compile_file( _file_info* );
 
 #endif

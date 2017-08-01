@@ -23,7 +23,7 @@
 /* compile.c
 
   written by: Oliver Cordes 2017-07-24
-  changed by: Oliver Cordes 2017-07-30
+  changed by: Oliver Cordes 2017-08-01
 
 */
 
@@ -197,13 +197,13 @@ int do_compile( char *infile, char *outfile )
 }
 
 
-void compile_file( _file_info *file_info )
+int compile_file( _file_info *file_info )
 {
   char *tempname;
 
   int   ret_val;
 
-  output( 10, "Compiling the executable ...\n" );
+  output( 1, "Compiling the executable ...\n" );
 
   tempname = strip_file( file_info );
   output( 10, "tempname = %s\n", tempname );
@@ -218,5 +218,7 @@ void compile_file( _file_info *file_info )
 
   free( tempname );
 
-  output( 10, "Done.\n" );
+  output( 1, "Done.\n" );
+
+  return ret_val;
 }
