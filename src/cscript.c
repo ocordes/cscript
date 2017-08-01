@@ -43,10 +43,15 @@
 #include "helpers.h"
 #include "output.h"
 
+#define normal_action 0
+#define cache_action  1
 
 char         *executable = NULL;
 config_table *conftab    = NULL;
 _file_info   *file_info  = NULL;
+
+int           action     = normal_action;
+char         *task       = NULL;
 
 static struct option longopts[] = {
   { "debug",          required_argument, NULL, 'd' },
@@ -96,8 +101,8 @@ void parse_options( int *argc, char **argv[] )
         is_loop = 0;
         break;
       case 'l':
-        cache_task( optarg );
-        exit( 0 );
+        task = strdup( optarg );
+        action = cache_action;
         break;
       /*default:
         printf( "Unknown parameter -%c detected! Abort program!\n", ch );
@@ -127,29 +132,37 @@ int main( int argc, char* argv[] )
   init_cache( conftab );
   init_compile( conftab );
 
-  if ( executable != NULL )
+  switch( action )
   {
-    file_info = get_file_info( executable );
+    case normal_action:
+      if ( executable != NULL )
+      {
+        file_info = get_file_info( executable );
 
-    check_cache( file_info );
+        check_cache( file_info );
 
-    ret_val = 0;   /* everything is okay */
-    switch( file_info->state )
-    {
-      case state_not_exist:
-      case state_outdated:
-        ret_val = compile_file( file_info );
-        break;
-    }
+        ret_val = 0;   /* everything is okay */
+        switch( file_info->state )
+        {
+          case state_not_exist:
+          case state_outdated:
+            ret_val = compile_file( file_info );
+          break;
+        }
 
-    if ( ret_val == 0 )
-    {
-      /* run only, if everything is okay! */
-      ret_val = cache_execute( file_info, argc, argv );
-    }
+        if ( ret_val == 0 )
+        {
+          /* run only, if everything is okay! */
+          ret_val = cache_execute( file_info, argc, argv );
+        }
 
-    /* finished executing */
-    free_file_info( file_info );
+        /* finished executing */
+        free_file_info( file_info );
+      }
+      break;
+    case cache_action:
+      cache_task( task );
+      break;
   }
 
   done_compile();

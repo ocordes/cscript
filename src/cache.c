@@ -38,6 +38,9 @@
 
 #include <time.h>
 
+#include <dirent.h>
+#include <fnmatch.h>
+
 #include "abort.h"
 #include "configfile.h"
 #include "file.h"
@@ -55,9 +58,11 @@ typedef struct{
 
 char *cache_dir = NULL;
 
+#define no_task         0
+#define cache_task_list 1
 static _task_list task_list[] = {
-    { "list", 1 },
-    { NULL, 0 }
+    { "list", cache_task_list },
+    { NULL, no_task }
 };
 
 
@@ -260,15 +265,58 @@ int cache_execute( _file_info *fi, int argc, char *argv[] )
 int str2task( char *taskname )
 {
   char *p = taskname;
+  int   i;
 
   while( (*p) != '\0' )
   {
-    (*p) = toupper( (*p) );
+    (*p) = tolower( (*p) );
     ++p;
+  }
+
+  i = 0;
+  while( task_list[i].name != NULL )
+  {
+    if ( strcmp( task_list[i].name, taskname ) == 0 )
+    {
+      return task_list[i].val;
+    }
+    ++i;
   }
 
   return 0;
 }
+
+
+void cache_list_file( char *fname )
+{
+  puts( fname );
+}
+
+
+void cache_list_cache( void )
+{
+  struct dirent *entry;
+  DIR *dp;
+
+  output( 1, "cache_dir = %s\n", cache_dir );
+  dp = opendir( cache_dir );
+  if ( dp == NULL )
+  {
+    perror("opendir");
+    return;
+  }
+
+  while( ( entry = readdir( dp ) ) )
+  {
+    if ( fnmatch( "*.dat", entry->d_name, 0 ) == 0 )
+    {
+      cache_list_file( entry->d_name );
+    }
+  }
+
+  closedir( dp );
+}
+
 
 void cache_task( char *taskname )
 {
@@ -277,5 +325,13 @@ void cache_task( char *taskname )
   output( 10, "task: %s\n", taskname );
 
   task = str2task( taskname );
-  
+
+  switch( task )
+  {
+    case cache_task_list:
+      cache_list_cache();
+      break;
+    default:
+      output( 1, "Unknown cache task: %s\n", taskname );
+  }
 }
