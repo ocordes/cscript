@@ -30,6 +30,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include <sys/stat.h>
 #include <string.h>
@@ -47,8 +48,17 @@
 #define  st_mtim st_mtimespec
 #endif
 
+typedef struct{
+    const char *name;
+    int         val;
+} _task_list;
 
 char *cache_dir = NULL;
+
+static _task_list task_list[] = {
+    { "list", 1 },
+    { NULL, 0 }
+};
 
 
 char * create_arg_list( int argc, char *argv[] )
@@ -244,4 +254,28 @@ int cache_execute( _file_info *fi, int argc, char *argv[] )
   free( cmd );
   free( arglist );
   return ret_val;
+}
+
+
+int str2task( char *taskname )
+{
+  char *p = taskname;
+
+  while( (*p) != '\0' )
+  {
+    (*p) = toupper( (*p) );
+    ++p;
+  }
+
+  return 0;
+}
+
+void cache_task( char *taskname )
+{
+  int task;
+
+  output( 10, "task: %s\n", taskname );
+
+  task = str2task( taskname );
+  
 }

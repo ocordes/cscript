@@ -36,6 +36,7 @@
 #include <errno.h>
 
 #include "cache.h"
+#include "config.h"
 #include "compile.h"
 #include "configfile.h"
 #include "file.h"
@@ -49,10 +50,12 @@ _file_info   *file_info  = NULL;
 
 static struct option longopts[] = {
   { "debug",          required_argument, NULL, 'd' },
+  { "version",        0,                 NULL, 'v' },
+  { "cache",          required_argument, NULL, 'l' },
   { NULL,             0,                 NULL, 0   }
 };
 
-#define options "c:d:f:"
+#define options "vc:d:f:l:"
 
 
 /* option parser */
@@ -70,6 +73,10 @@ void parse_options( int *argc, char **argv[] )
   {
     switch( ch )
     {
+      case 'v':
+        printf( "%s: Version %s (build %s)\n", PROJECT_NAME, VERSION, BUILD );
+        exit( 0 );
+        break;
       case 'c':
         conftab = config_read( optarg, 0 );
         break;
@@ -87,6 +94,10 @@ void parse_options( int *argc, char **argv[] )
       case 'f':
         executable = strdup( optarg );
         is_loop = 0;
+        break;
+      case 'l':
+        cache_task( optarg );
+        exit( 0 );
         break;
       /*default:
         printf( "Unknown parameter -%c detected! Abort program!\n", ch );
