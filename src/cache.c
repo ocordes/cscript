@@ -23,7 +23,7 @@
 /* cache.c
 
   written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-08-01
+  changed by: Oliver Cordes 2017-08-02
 
 */
 
@@ -50,6 +50,9 @@
 #if defined(__APPLE__)
 #define  st_mtim st_mtimespec
 #endif
+
+/* for string buffers */
+#define buflen 80
 
 typedef struct{
     const char *name;
@@ -148,7 +151,6 @@ void done_cache( void )
 
 void check_cache( _file_info *fi )
 {
-  #define buflen 80
   char    buf[buflen+1];
   FILE   *file;
 
@@ -289,7 +291,55 @@ int str2task( char *taskname )
 
 void cache_list_file( char *fname )
 {
-  puts( fname );
+  FILE   *file;
+  char   *fn;
+  char   *p, *s;
+
+  char    buf[1001];
+
+  time_t  dt1, dt2;
+
+
+  s = strdup( fname );
+  asprintf( &fn, "%s/%s", cache_dir, fname );
+  file = fopen( fn, "r" );
+  if ( file != NULL )
+  {
+    p = strtok( s, ".\0" );
+    printf( "hash: %s\n", p );
+
+    if ( fgets( buf, buflen, file ) == NULL )
+    {
+      dt1 = 0;
+    }
+    else
+    {
+      dt1 = buf2time( buf );
+    }
+
+    if ( fgets( buf, buflen, file ) == NULL )
+    {
+      dt2 = 0;
+    }
+    else
+    {
+      dt2 = buf2time( buf );
+    }
+
+    if ( fgets( buf, 1000, file ) == NULL )
+    {
+      buf[0] = '\0';
+    }
+    printf( " Name        : %s", buf );
+    printf( " Compile time: %s", ctime( &dt1 ) );
+    printf( " Last access : %s", ctime( &dt2 ) );
+
+
+    fclose( file );
+  }
+  free( fn );
+  free( s );
+  printf( "\n" );
 }
 
 
@@ -298,7 +348,6 @@ void cache_list_cache( void )
   struct dirent *entry;
   DIR *dp;
 
-  output( 1, "cache_dir = %s\n", cache_dir );
   dp = opendir( cache_dir );
   if ( dp == NULL )
   {
