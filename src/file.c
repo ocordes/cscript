@@ -42,6 +42,7 @@
 #  include <openssl/md5.h>
 #endif
 
+#include "abort.h"
 #include "cache.h"
 #include "file.h"
 #include "output.h"
@@ -129,9 +130,8 @@ _file_info *get_file_info( char *executable )
 
   if ( stat( executable, &fi->file_stat ) == -1 )
   {
-    fprintf( stderr, "Error getting stats for executable (%s)! Program aborted!\n",
-          strerror( errno ) );
-    exit( -1 );
+    err_abort( -1, "Error getting stats for executable '%s' (%s)! Program aborted!\n",
+      fi->name, strerror( errno ) );
   }
   generate_file_hash( fi );
 
