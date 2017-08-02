@@ -437,10 +437,10 @@ int config_getboolean( config_table *tab,
 		       char *section, char *option,
 		       int *err )
 {
-  char *p;
-  int   i;
+  char         *p;
+  unsigned int  i;
 
-  int   val = 1;
+  int           val = 1;
 
   p = config_get( tab, section, option, err );
 

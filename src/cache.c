@@ -325,7 +325,10 @@ void cache_list_file( char *fname )
 
 
   s = strdup( fname );
-  asprintf( &fn, "%s/%s", cache_dir, fname );
+  if ( asprintf( &fn, "%s/%s", cache_dir, fname ) == -1 )
+  {
+    fn = strdup( fname );
+  }
   file = fopen( fn, "r" );
   if ( file != NULL )
   {
