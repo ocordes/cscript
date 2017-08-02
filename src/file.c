@@ -42,6 +42,7 @@
 #  include <openssl/md5.h>
 #endif
 
+#include "cache.h"
 #include "file.h"
 #include "output.h"
 
@@ -74,6 +75,7 @@ void generate_file_hash( _file_info *fi )
   int           i, pos;
 
   MD5_Init( &md5 );
+  MD5_Update( &md5, mach_str, strlen( mach_str) );
   MD5_Update( &md5, fi->name, strlen( fi->name ) );
   MD5_Final( digest, &md5 );
 

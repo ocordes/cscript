@@ -23,7 +23,7 @@
 /* cache.h
 
   written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-08-01
+  changed by: Oliver Cordes 2017-08-02
 
 */
 
@@ -33,6 +33,10 @@
 
 #include "configfile.h"
 #include "file.h"
+
+extern char *cache_dir;
+extern char *mach_str;
+
 
 void init_cache( config_table* );
 void done_cache( void );
