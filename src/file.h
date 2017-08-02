@@ -23,7 +23,7 @@
 /* file.h
 
   written by: Oliver Cordes 2017-07-22
-  changed by: Oliver Cordes 2017-07-30
+  changed by: Oliver Cordes 2017-08-02
 
 */
 

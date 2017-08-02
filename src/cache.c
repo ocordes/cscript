@@ -33,6 +33,7 @@
 #include <ctype.h>
 
 #include <sys/stat.h>
+#include <sys/utsname.h>
 #include <string.h>
 #include <errno.h>
 
@@ -60,6 +61,7 @@ typedef struct{
 } _task_list;
 
 char *cache_dir = NULL;
+char *mach_str  = NULL;
 
 #define no_task         0
 #define cache_task_list 1
@@ -124,6 +126,8 @@ void init_cache( config_table *conftab )
   char *s;
   int   err;
 
+  struct utsname name;
+
   s = config_get_default( conftab, "main", "cache_dir", "$HOME/.cscript_cache" );
   cache_dir = expand_environment_variable( s );
   free( s );
@@ -139,6 +143,21 @@ void init_cache( config_table *conftab )
       exit( -1 );
     }
   }
+
+  /* get the arch time */
+  if ( uname( &name ) != 0 )
+  {
+    fprintf( stderr, "Can't get machines description (%s)!\n", strerror( errno ) );
+  }
+  else
+  {
+    output( 10, "system = %s\n", name.sysname );
+    output( 10, "mach   = %s\n", name.machine );
+    if ( asprintf( &mach_str, "%s %s", name.sysname, name.machine  ) == -1 )
+    {
+      mach_str = strdup( "Foo Bar" );
+    }
+  }
 }
 
 
@@ -146,6 +165,9 @@ void done_cache( void )
 {
   if ( cache_dir != NULL )
     free( cache_dir );
+
+  if ( mach_str != NULL )
+    free( mach_str );
 }
 
 
@@ -230,6 +252,7 @@ void cache_update( _file_info *fi )
   {
     fprintf( file, "%ld\n", fi->compile_time );
     fprintf( file, "%ld\n", fi->access_time );
+    fprintf( file, "%s\n", mach_str );
     fprintf( file, "%s\n", fi->name );
     fclose( file );
   }
@@ -296,6 +319,7 @@ void cache_list_file( char *fname )
   char   *p, *s;
 
   char    buf[1001];
+  char    mach[buflen+1];
 
   time_t  dt1, dt2;
 
@@ -326,11 +350,17 @@ void cache_list_file( char *fname )
       dt2 = buf2time( buf );
     }
 
+    if ( fgets( mach, buflen, file ) == NULL )
+    {
+      strncpy( mach, "\n", buflen );
+    }
+
     if ( fgets( buf, 1000, file ) == NULL )
     {
-      buf[0] = '\0';
+      strncpy( buf, "\n", 1000 );
     }
     printf( " Name        : %s", buf );
+    printf( " mach        : %s", mach );
     printf( " Compile time: %s", ctime( &dt1 ) );
     printf( " Last access : %s", ctime( &dt2 ) );
 
