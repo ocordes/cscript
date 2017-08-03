@@ -23,7 +23,7 @@
 /* cache.h
 
   written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-08-02
+  changed by: Oliver Cordes 2017-08-03
 
 */
 
@@ -45,6 +45,6 @@ void check_cache( _file_info*);
 
 int  cache_execute( _file_info*, int, char*[] );
 
-void cache_task( char* );
+void cache_task( char*, int, char*[] );
 
 #endif

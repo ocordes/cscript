@@ -23,7 +23,7 @@
 /* cscript.c
 
   written by: Oliver Cordes 2017-07-20
-  changed by: Oliver Cordes 2017-08-01
+  changed by: Oliver Cordes 2017-08-03
 
 */
 
@@ -161,7 +161,7 @@ int main( int argc, char* argv[] )
       }
       break;
     case cache_action:
-      cache_task( task );
+      cache_task( task, argc, argv );
       break;
   }
 

@@ -23,7 +23,7 @@
 /* cache.c
 
   written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-08-02
+  changed by: Oliver Cordes 2017-08-03
 
 */
 
@@ -36,6 +36,7 @@
 #include <sys/utsname.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <time.h>
 
@@ -63,10 +64,12 @@ typedef struct{
 char *cache_dir = NULL;
 char *mach_str  = NULL;
 
-#define no_task         0
-#define cache_task_list 1
+#define no_task          0
+#define cache_task_list  1
+#define cache_task_clear 2
 static _task_list task_list[] = {
     { "list", cache_task_list },
+    { "clear", cache_task_clear },
     { NULL, no_task }
 };
 
@@ -400,7 +403,102 @@ void cache_list_cache( void )
 }
 
 
-void cache_task( char *taskname )
+void cache_clear_hash( char *hash )
+{
+  char *s;
+
+  if ( asprintf( &s, "%s/%s.dat" , cache_dir, hash ) != -1 )
+  {
+    if ( unlink( s ) == 0 )
+    {
+      printf( "Removed: %s\n", s );
+    }
+    else
+    {
+      printf( "%s not found! Cannot remove this file from cache!\n", s );
+    }
+    free( s );
+  }
+
+  if ( asprintf( &s, "%s/%s.exe" , cache_dir, hash ) != -1 )
+  {
+    if ( unlink( s ) == 0 )
+    {
+      printf( "Removed: %s\n", s );
+    }
+    else
+    {
+      printf( "%s not found! Cannot remove this file from cache!\n", s );
+    }
+    free( s );
+  }
+}
+
+
+void cache_clear_all( void )
+{
+  struct dirent *entry;
+  DIR           *dp;
+  int            tor;
+  char          *s;
+
+  dp = opendir( cache_dir );
+  if ( dp == NULL )
+  {
+    perror("opendir");
+    return;
+  }
+
+  while( ( entry = readdir( dp ) ) )
+  {
+    tor = 0;
+    if ( fnmatch( "*.dat", entry->d_name, 0 ) == 0 )
+    {
+      tor = 1;
+    }
+    if ( fnmatch( "*.exe", entry->d_name, 0 ) == 0 )
+    {
+      tor = 1;
+    }
+    if ( tor == 1 )
+    {
+      if ( asprintf( &s, "%s/%s", cache_dir, entry->d_name ) != -1 )
+      {
+        if ( unlink( s ) == 0 )
+        {
+          printf( "Removed: %s\n", s );
+        }
+        else
+        {
+          printf( "%s not found! Cannot remove this file from cache!\n", s );
+        }
+      }
+    }
+  }
+
+  closedir( dp );
+}
+
+
+void cache_clear_cache( int argc, char *argv[] )
+{
+  int i;
+
+  if ( argc == 0 )
+  {
+    cache_clear_all();
+  }
+  else
+  {
+    for (i=0;i<argc;++i)
+    {
+      cache_clear_hash( argv[i] );
+    }
+  }
+}
+
+
+void cache_task( char *taskname, int argc, char *argv[] )
 {
   int task;
 
@@ -410,6 +508,9 @@ void cache_task( char *taskname )
 
   switch( task )
   {
+    case cache_task_clear:
+      cache_clear_cache( argc, argv );
+      break;
     case cache_task_list:
       cache_list_cache();
       break;
