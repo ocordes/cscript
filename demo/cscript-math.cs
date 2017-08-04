@@ -1,9 +1,10 @@
-#!/Users/ocordes/git/cscript/build/cscript -f
+#!/Users/ocordes/git/cscript/build/cscript -d 100 -f
 
 #
 
 # start
-# blah
+# LDFLAGS -lm
+# DARWIN_LDFLAGS -lm
 #end
 #include <stdio.h>
 #include <stdlib.h>

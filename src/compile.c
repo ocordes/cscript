@@ -23,7 +23,7 @@
 /* compile.c
 
   written by: Oliver Cordes 2017-07-24
-  changed by: Oliver Cordes 2017-08-01
+  changed by: Oliver Cordes 2017-08-04
 
 */
 
@@ -33,6 +33,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ctype.h>
 
 #include <time.h>
 
@@ -41,6 +42,7 @@
 #include "configfile.h"
 #include "compile.h"
 #include "file.h"
+#include "helpers.h"
 #include "output.h"
 
 #define bufferlen 60000
@@ -49,9 +51,18 @@
 char *c_compiler   = NULL;
 char *cpp_compiler = NULL;
 
+char *CFLAGS       = NULL;
+char *CPPFLAGS     = NULL;
+char *LDFLAGS      = NULL;
+
+
+
+
 
 void header_keys( char *key, char* val, int lineno )
 {
+  char *s;
+
   if ( ( key == NULL ) || ( val == NULL ) )
   {
     output( 10, "header key wrong in line %i: key=%s val=%s\n", lineno, key, val );
@@ -59,22 +70,96 @@ void header_keys( char *key, char* val, int lineno )
   }
 
   output( 10, "extra parameter: key=%s val=%s\n", key, val );
+
+  if ( strcmp( key, "CFLAGS" ) ==  0 )
+  {
+    append_string( &CFLAGS, val );
+    return;
+  }
+
+  if ( strcmp( key, "CPPFLAGS" ) ==  0 )
+  {
+    append_string( &CPPFLAGS, val );
+    return;
+  }
+
+  if ( strcmp( key, "LDFLAGS" )  == 0 )
+  {
+    append_string( &LDFLAGS, val );
+    return;
+  }
+
+  /* now the special MACH keys */
+  if ( asprintf( &s, "%s_CFLAGS", get_system_name() ) == -1 )
+    return;
+  else
+  {
+    if ( strcmp( key, s ) == 0 )
+    {
+      append_string( &CFLAGS, val );
+      free( s );
+      return;
+    }
+    else
+    {
+      free( s );
+    }
+  }
+
+  if ( asprintf( &s, "%s_CPPLAGS", get_system_name() ) == -1 )
+  {
+    return;
+  }
+  else
+  {
+    if ( strcmp( key, s ) == 0 )
+    {
+      append_string( &CPPFLAGS, val );
+      free( s );
+      return;
+    }
+    else
+    {
+      free( s );
+    }
+  }
+
+  if ( asprintf( &s, "%s_LDFLAGS", get_system_name() ) == -1 )
+  {
+    return;
+  }
+  else
+  {
+    if ( strcmp( key, s ) == 0 )
+    {
+      append_string( &LDFLAGS, val );
+      free( s );
+      return;
+    }
+    else
+    {
+      free( s );
+    }
+  }
 }
+
 
 char *strip_file( _file_info *file_info )
 {
-  int   fd;
-  FILE *out_file;
-  FILE *in_file;
+  int    fd;
+  FILE  *out_file;
+  FILE  *in_file;
 
-  char *templatename;
+  char  *templatename;
 
-  char  buf[bufferlen+1];
-  char *buf2;
-  char *p;
-  char *q, *r;
-  int   header;
-  int   lineno = 0;
+  char   buf[bufferlen+1];
+  char  *buf2;
+  char  *p;
+  char  *q, *r;
+  int    header;
+  int    lineno = 0;
+
+  size_t i;
 
   if ( asprintf( &templatename, "%s/tmp-XXXXXX.c", "/tmp" ) == -1 )
   {
@@ -140,6 +225,10 @@ char *strip_file( _file_info *file_info )
         if ( header == 1 )
         {
           r = strtok( NULL, "\0" );
+          for (i=0;i<strlen( q );++i)
+          {
+            q[i] = toupper( q[i] );
+          }
           header_keys( q, r, lineno );
         }
       }
@@ -169,6 +258,10 @@ void done_compile( void )
 {
   if ( c_compiler != NULL ) free( c_compiler );
   if ( cpp_compiler != NULL ) free( cpp_compiler );
+
+  if ( CFLAGS != NULL ) free( CFLAGS );
+  if ( CPPFLAGS != NULL ) free( CPPFLAGS );
+  if ( LDFLAGS != NULL ) free( LDFLAGS );
 }
 
 
@@ -178,6 +271,8 @@ int do_compile( char *infile, char *outfile )
   int   err;
 
   output( 10, "compiling: %s -> %s\n", infile, outfile );
+  output( 10, " CFLAGS : %s\n", CFLAGS );
+  output( 10, " LDFLAGS: %s\n", LDFLAGS );
 
   if ( asprintf( &compile_cmd, "%s -O3 -o %s %s", c_compiler, outfile, infile ) == -1 )
   {

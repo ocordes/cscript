@@ -24,9 +24,7 @@
 
 
    written by: Oliver Cordes 2010-06-29
-   changed by: Oliver Cordes 2017-07-21
-
-   $Id: helpers.h 343 2013-01-02 19:02:00Z ocordes $
+   changed by: Oliver Cordes 2017-08-04
 
 */
 
@@ -38,5 +36,7 @@
 /* search file */
 char *expand_environment_variable( char* );
 char *search_file( char*, char* );
+
+void append_string( char**, char* );
 
 #endif

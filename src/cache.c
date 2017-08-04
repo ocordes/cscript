@@ -23,7 +23,7 @@
 /* cache.c
 
   written by: Oliver Cordes 2017-07-21
-  changed by: Oliver Cordes 2017-08-03
+  changed by: Oliver Cordes 2017-08-04
 
 */
 
@@ -63,6 +63,9 @@ typedef struct{
 
 char *cache_dir = NULL;
 char *mach_str  = NULL;
+char *smach     = NULL;
+char *ssystem   = NULL;
+
 
 #define no_task          0
 #define cache_task_list  1
@@ -126,8 +129,9 @@ time_t buf2time( char *s )
 
 void init_cache( config_table *conftab )
 {
-  char *s;
-  int   err;
+  char  *s;
+  int    err;
+  size_t i;
 
   struct utsname name;
 
@@ -160,6 +164,10 @@ void init_cache( config_table *conftab )
     {
       mach_str = strdup( "Foo Bar" );
     }
+    smach   = strdup( name.machine );
+    for (i=0;i<strlen( smach ); ++i) smach[i] = toupper( smach[i] );
+    ssystem = strdup( name.sysname );
+    for (i=0;i<strlen( ssystem ); ++i) smach[i] = toupper( ssystem[i] );
   }
 }
 
@@ -517,4 +525,16 @@ void cache_task( char *taskname, int argc, char *argv[] )
     default:
       output( 1, "Unknown cache task: %s\n", taskname );
   }
+}
+
+
+char *get_mach_name( void )
+{
+  return smach;
+}
+
+
+char *get_system_name( void )
+{
+  return ssystem;
 }

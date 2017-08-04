@@ -25,10 +25,7 @@
 
 
    written by: Oliver Cordes 2010-06-29
-   changed by: Oliver Cordes 2017-07-31
-
-   $Id: helpers.c 343 2013-01-02 19:02:00Z ocordes $
-
+   changed by: Oliver Cordes 2017-08-04
 */
 
 #define _GNU_SOURCE
@@ -120,4 +117,29 @@ char *search_file( char *name, char *pathes )
   free( dup );
 
   return NULL;
+}
+
+
+
+void append_string( char **s, char *val )
+{
+  int  len;
+  char *ss;
+  if ( (*s) == NULL )
+  {
+    (*s) = strdup( val );
+    return;
+  }
+
+  len = strlen( (*s) ) + strlen( val ) + 2;
+  ss = (char*) malloc( len );
+  if ( ss == NULL ) return;
+  output( 10, "%s\n", (*s) );
+  output( 10, "%s\n", val );
+  ss[0] = '\0';
+  strcat( ss, (*s) );
+  strcat( ss, val );
+  free( (*s) );
+  (*s) = ss;
+  output( 10, "%s\n", (*s) );
 }
