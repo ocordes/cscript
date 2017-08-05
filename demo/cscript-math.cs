@@ -3,8 +3,7 @@
 #
 
 # start
-# LDFLAGS -lm
-# DARWIN_LDFLAGS -lm
+# LINUX_LDFLAGS -lm
 #end
 #include <stdio.h>
 #include <stdlib.h>

@@ -23,7 +23,7 @@
 /* compile.c
 
   written by: Oliver Cordes 2017-07-24
-  changed by: Oliver Cordes 2017-08-04
+  changed by: Oliver Cordes 2017-08-05
 
 */
 
@@ -130,6 +130,7 @@ void header_keys( char *key, char* val, int lineno )
   }
   else
   {
+    output( 10, "XFLAGS = %s\n", s );
     if ( strcmp( key, s ) == 0 )
     {
       append_string( &LDFLAGS, val );
@@ -270,11 +271,16 @@ int do_compile( char *infile, char *outfile )
   char *compile_cmd;
   int   err;
 
+  /* shape some parameters */
+  if ( CFLAGS == NULL ) CFLAGS = strdup( "" );
+  if ( LDFLAGS == NULL ) LDFLAGS = strdup( "" );
+
   output( 10, "compiling: %s -> %s\n", infile, outfile );
   output( 10, " CFLAGS : %s\n", CFLAGS );
   output( 10, " LDFLAGS: %s\n", LDFLAGS );
 
-  if ( asprintf( &compile_cmd, "%s -O3 -o %s %s", c_compiler, outfile, infile ) == -1 )
+  if ( asprintf( &compile_cmd, "%s -O3 %s %s -o %s %s",
+       c_compiler, CFLAGS, LDFLAGS, outfile, infile ) == -1 )
   {
     err_abort( -1, "Can't allocate memory for string!" );
   }

@@ -25,7 +25,7 @@
 
 
    written by: Oliver Cordes 2010-06-29
-   changed by: Oliver Cordes 2017-08-04
+   changed by: Oliver Cordes 2017-08-05
 */
 
 #define _GNU_SOURCE
@@ -35,6 +35,7 @@
 #include <unistd.h>
 
 #include "helpers.h"
+#include "output.h"
 
 
 /* search files */
@@ -134,12 +135,12 @@ void append_string( char **s, char *val )
   len = strlen( (*s) ) + strlen( val ) + 2;
   ss = (char*) malloc( len );
   if ( ss == NULL ) return;
-  output( 10, "%s\n", (*s) );
-  output( 10, "%s\n", val );
+
+  /* start with an empty string */
   ss[0] = '\0';
-  strcat( ss, (*s) );
-  strcat( ss, val );
+  strcat( ss, (*s) );   /* original value */
+  strcat( ss, " " );    /* add a space */
+  strcat( ss, val );    /* second parameter */
   free( (*s) );
   (*s) = ss;
-  output( 10, "%s\n", (*s) );
 }

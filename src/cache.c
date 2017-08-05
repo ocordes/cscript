@@ -167,7 +167,7 @@ void init_cache( config_table *conftab )
     smach   = strdup( name.machine );
     for (i=0;i<strlen( smach ); ++i) smach[i] = toupper( smach[i] );
     ssystem = strdup( name.sysname );
-    for (i=0;i<strlen( ssystem ); ++i) smach[i] = toupper( ssystem[i] );
+    for (i=0;i<strlen( ssystem ); ++i) ssystem[i] = toupper( ssystem[i] );
   }
 }
 
