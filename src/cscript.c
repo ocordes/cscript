@@ -23,7 +23,7 @@
 /* cscript.c
 
   written by: Oliver Cordes 2017-07-20
-  changed by: Oliver Cordes 2017-08-03
+  changed by: Oliver Cordes 2017-08-05
 
 */
 
@@ -57,11 +57,19 @@ static struct option longopts[] = {
   { "debug",          required_argument, NULL, 'd' },
   { "version",        0,                 NULL, 'v' },
   { "cache",          required_argument, NULL, 'l' },
+  { "help",           0,                 NULL, 'h' },
   { NULL,             0,                 NULL, 0   }
 };
 
-#define options "vc:d:f:l:"
+#define options "vc:d:f:l:?h"
 
+
+void syntax( void )
+{
+  printf( "%s: Version %s (build %s)\n", PROJECT_NAME, VERSION, BUILD );
+  printf( "SYNTAX:\n" );
+  exit( 0 );
+}
 
 /* option parser */
 
@@ -78,6 +86,11 @@ void parse_options( int *argc, char **argv[] )
   {
     switch( ch )
     {
+      case '?':
+      case 'h':
+        syntax();
+        exit( 0 );
+        break;
       case 'v':
         printf( "%s: Version %s (build %s)\n", PROJECT_NAME, VERSION, BUILD );
         exit( 0 );
