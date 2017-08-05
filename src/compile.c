@@ -279,8 +279,8 @@ int do_compile( char *infile, char *outfile )
   output( 10, " CFLAGS : %s\n", CFLAGS );
   output( 10, " LDFLAGS: %s\n", LDFLAGS );
 
-  if ( asprintf( &compile_cmd, "%s -O3 %s %s -o %s %s",
-       c_compiler, CFLAGS, LDFLAGS, outfile, infile ) == -1 )
+  if ( asprintf( &compile_cmd, "%s -O3 %s -o %s %s %s",
+       c_compiler, CFLAGS, outfile, infile, LDFLAGS ) == -1 )
   {
     err_abort( -1, "Can't allocate memory for string!" );
   }
