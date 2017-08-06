@@ -1,0 +1,9 @@
+Release 0.1.0  2017-08-06
+- first release
+- mostly for gcc C compilation C++ is missing so far
+- CFLAGS and LDFLAGS can be set via header comments in the script file
+- cache command available:  clear and list
+- mach and arch dependend, so e.g. 32bit and 64bit Linuxes geenerate different
+  compiled files to the same source file
+- use a general config file $HOME/.cscript
+- real document is missing

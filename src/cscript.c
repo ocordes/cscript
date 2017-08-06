@@ -23,7 +23,7 @@
 /* cscript.c
 
   written by: Oliver Cordes 2017-07-20
-  changed by: Oliver Cordes 2017-08-05
+  changed by: Oliver Cordes 2017-08-06
 
 */
 
@@ -61,13 +61,27 @@ static struct option longopts[] = {
   { NULL,             0,                 NULL, 0   }
 };
 
-#define options "vc:d:f:l:?h"
+#define options "vc:d:f:?h"
 
 
 void syntax( void )
 {
   printf( "%s: Version %s (build %s)\n", PROJECT_NAME, VERSION, BUILD );
-  printf( "SYNTAX:\n" );
+  puts( "SYNTAX:" );
+  puts( " -h, -?, --help  : this help" );
+  puts( " -v, --version   : get the version string" );
+  puts( " --debug level," );
+  puts( " -d level        : sets the debug level, 0 is totally quiet, 1 is the default" );
+  puts( " --config filename," );
+  puts( " -c filename     : use 'filename' as the configuration file, instead of" );
+  puts( "                   $HOME/.cscript" );
+  puts( "" );
+  puts( " -f filename     : executes 'filename', compiles if necessary" );
+  puts( "" );
+  puts( " --cache task    : perform some cache tasks:" );
+  puts( "                   'list'         : list all cache entries" );
+  puts( "                   'clear [hash]  : clear the cache, if a hash is given," );
+  puts( "                                    clear all the files to teh given hash" );
   exit( 0 );
 }
 
