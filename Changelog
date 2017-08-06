@@ -1,3 +1,7 @@
+Reease 0.1.1 2017-08-06
+- put some information in the git README.md
+- switch the demo code to /usr/bin/env cscript for invoking cscript
+
 Release 0.1.0  2017-08-06
 - first release
 - mostly for gcc C compilation C++ is missing so far

@@ -1,4 +1,4 @@
-#!/Users/ocordes/git/cscript/build/cscript -f
+#!/usr/bin/env cscript -f
 
 #
 
