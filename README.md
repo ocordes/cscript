@@ -10,6 +10,7 @@ The main intention was to convert small C/C++ programs into scripts without deve
   
 ## Example:
 
+~~~~
 #!/usr/bin/cscript -f
 
 #include <stdio.h>
@@ -25,6 +26,7 @@ int main( int argc, char* argv[] )
 
   return 0;
 }
+~~~~
 
 ## Header keywords
 
