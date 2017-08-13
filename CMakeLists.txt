@@ -2,9 +2,9 @@ cmake_minimum_required (VERSION 2.6)
 project( cscript C )
 
 # written by: Oliver Cordes 2017-07-20
-# changed by: Oliver Cordes 2017-07-31
+# changed by: Oliver Cordes 2017-08-13
 
-set(VERSION 0.1.0)
+set(VERSION 0.1.2)
 
 # get current date
 execute_process(COMMAND "date" "+%Y-%m-%d" OUTPUT_VARIABLE BUILD)
