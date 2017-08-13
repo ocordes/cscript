@@ -1,4 +1,8 @@
-Reease 0.1.1 2017-08-06
+Release 0.1.2 2017-XX-XX
+- add more config file parameter
+- code cleanup
+
+Release 0.1.1 2017-08-06
 - put some information in the git README.md
 - switch the demo code to /usr/bin/env cscript for invoking cscript
 

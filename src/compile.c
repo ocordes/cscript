@@ -1,21 +1,21 @@
-/* (C) Copyright 2010 by Oliver Cordes
+/* (C) Copyright 2017 by Oliver Cordes
         - ocordes ( at ) astro ( dot ) uni-bonn ( dot ) de
 
 
-    This file is part of cscript.
+        This file is part of cscript.
 
-    animation is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+        cscript is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
 
-    animation is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+        cscript is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with cscript.  If not, see <http://www.gnu.org/licenses/>.
+        You should have received a copy of the GNU General Public License
+        along with cscript.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -23,7 +23,7 @@
 /* compile.c
 
   written by: Oliver Cordes 2017-07-24
-  changed by: Oliver Cordes 2017-08-05
+  changed by: Oliver Cordes 2017-08-13
 
 */
 
@@ -163,15 +163,12 @@ char *strip_file( _file_info *file_info )
   size_t i;
 
   if ( asprintf( &templatename, "%s/tmp-XXXXXX.c", "/tmp" ) == -1 )
-  {
     templatename = strdup( "/tmp/tmp-XXXXXX.c" );
-  };
+
   fd = mkstemps( templatename, 2 );
 
   if ( fd == -1 )
-  {
     err_abort( -1, "Can't create temporary file for compiling (%s)!", strerror( errno) );
-  }
 
   out_file = fdopen( fd, "w" );
 
@@ -185,9 +182,7 @@ char *strip_file( _file_info *file_info )
   in_file = fopen( file_info->name, "r" );
 
   if ( in_file == NULL )
-  {
     err_abort( -1, "Can't open script file for compiling (%s)!", strerror( errno ) );
-  }
 
   header = 0;   /* write all lines to output file */
   /* loop over all script lines */
@@ -235,9 +230,7 @@ char *strip_file( _file_info *file_info )
       }
 
       if ( header == 0 )
-      {
         fwrite( buf, strlen( buf ), 1, out_file );
-      }
     }
   }
   fclose( in_file );
@@ -251,8 +244,11 @@ char *strip_file( _file_info *file_info )
 
 void init_compile( config_table *tab )
 {
-  c_compiler = config_get_default( tab, "main", "c_compiler", "gcc" );
+  c_compiler   = config_get_default( tab, "main", "c_compiler", "gcc" );
+  CFLAGS       = config_get_default( tab, "main", "CFLAGS", "-O3" );
   cpp_compiler = config_get_default( tab, "main", "cpp_compiler", "g++" );
+  CPPFLAGS     = config_get_default( tab, "main", "CPPFLAGS", "-O3" );
+  LDFLAGS      = config_get_default( tab, "main", "LDFLAGS", "" );
 }
 
 void done_compile( void )
@@ -279,19 +275,16 @@ int do_compile( char *infile, char *outfile )
   output( 10, " CFLAGS : %s\n", CFLAGS );
   output( 10, " LDFLAGS: %s\n", LDFLAGS );
 
-  if ( asprintf( &compile_cmd, "%s -O3 %s -o %s %s %s",
+  if ( asprintf( &compile_cmd, "%s %s -o %s %s %s",
        c_compiler, CFLAGS, outfile, infile, LDFLAGS ) == -1 )
-  {
-    err_abort( -1, "Can't allocate memory for string!" );
-  }
+       err_abort( -1, "Can't allocate memory for string!" );
+
   output( 10, "cmd: %s\n", compile_cmd );
 
   err = system( compile_cmd );
 
   if ( err != 0 )
-  {
     output( 0, "Error during compilation! (err=%i)\n", err );
-  }
 
   free( compile_cmd );
 
